@@ -8,9 +8,9 @@ def generate_short_id() -> str:
 
 
 def get_vless_reality_template(
-        tag: str = "ultinfin-vless-443",
+        tag: str = "vless-inbound-443",
         port: int = 443,
-        server_name: str = "ultinvpn.biz",
+        server_name: str = "example.com",
         private_key: str = "",
         short_id: str = None,
         xver: int = 1
