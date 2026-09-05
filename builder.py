@@ -1,37 +1,9 @@
 import uuid
 
-def get_vless_reality_template(port: int = 443, dest_host: str = "dl.google.com:443") -> dict:
-    """Генерирует готовый Inbound для VLESS + Reality."""
-    user_uuid = str(uuid.uuid4())
+def get_vless_reality_template(tag: str = "ultinfin-vless-443", port: int = 443, server_name: str = "ultinvpn.biz") -> dict:
+    """Генерирует готовый инбаунд VLESS Reality с поддержкой BBR."""
     return {
-        "port": port,
-        "protocol": "vless",
-        "settings": {
-            "clients": [
-                {
-                    "id": user_uuid,
-                    "flow": "xtls-rprx-vision"
-                }
-            ],
-            "decryption": "none"
-        },
-        "streamSettings": {
-            "network": "tcp",
-            "security": "reality",
-            "realitySettings": {
-                "show": False,
-                "dest": dest_host,
-                "xver": 0,
-                "serverNames": [dest_host.split(":")[0]],
-                "privateKey": "СГЕНЕРИРУЙТЕ_ЧЕРЕЗ_xray_x25519",
-                "shortIds": [""]
-            }
-        }
-    }
-
-def get_grpc_template(port: int = 8443, service_name: str = "grpc-vpn") -> dict:
-    """Генерирует готовый Inbound с транспортировкой gRPC."""
-    return {
+        "tag": tag,
         "port": port,
         "protocol": "vless",
         "settings": {
@@ -39,15 +11,33 @@ def get_grpc_template(port: int = 8443, service_name: str = "grpc-vpn") -> dict:
             "decryption": "none"
         },
         "streamSettings": {
-            "network": "grpc",
-            "grpcSettings": {
-                "serviceName": service_name
+            "network": "tcp",
+            "security": "reality",
+            "realitySettings": {
+                "show": False,
+                "dest": f"{server_name}:443",
+                "xver": 0,
+                "serverNames": [
+                    server_name
+                ],
+                "privateKey": "",  # Заполняется панелью или через скрипт
+                "shortIds": [
+                    ""
+                ]
+            },
+            "sockopt": {
+                "tcpCongestion": "bbr"
             }
         }
     }
-def get_hysteria2_template(port: int = 8443, password: str = "SecretPassword123") -> dict:
-    """Генерирует готовый Inbound для Hysteria 2 (Hysteria2 / QUIC)."""
+
+def get_hysteria2_template(tag: str = "hy2-inbound-443", port: int = 443, password: str = None) -> dict:
+    """Генерирует инбаунд Hysteria 2 для 443/UDP с сертификатами из /dev/shm."""
+    if not password:
+        password = str(uuid.uuid4())
+
     return {
+        "tag": tag,
         "port": port,
         "protocol": "hysteria2",
         "settings": {
@@ -56,18 +46,20 @@ def get_hysteria2_template(port: int = 8443, password: str = "SecretPassword123"
                     "password": password
                 }
             ],
-            "ignoreClientBandwidth": False
+            "ignoreClientBandwidth": True
         },
         "streamSettings": {
-            "network": "hysteria2",
+            "network": "udp",
             "security": "tls",
             "tlsSettings": {
-                "serverName": "your-domain.com",
                 "certificates": [
                     {
-                        "certificateFile": "/path/to/cert.crt",
-                        "keyFile": "/path/to/private.key"
+                        "certificateFile": "/dev/shm/hy2_certs/fullchain.pem",
+                        "keyFile": "/dev/shm/hy2_certs/privkey.pem"
                     }
+                ],
+                "alpn": [
+                    "h3"
                 ]
             }
         }
