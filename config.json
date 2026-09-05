@@ -1,0 +1,23 @@
+{
+    "inbounds": [
+        {
+            "port": 1080,
+            "protocol": "vless"
+        },
+        {
+            "port": 8443,
+            "protocol": "vless",
+            "settings": {
+                "clients": [],
+                "decryption": "none"
+            },
+            "streamSettings": {
+                "network": "grpc",
+                "grpcSettings": {
+                    "serviceName": "grpc-vpn1"
+                }
+            }
+        }
+    ],
+    "outbounds": []
+}
