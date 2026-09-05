@@ -807,3 +807,4 @@ from typing import Optional
 # result = find_user(["Анна", "Борис"], "Вика")
 # print(result)  # None — не нашли
 
+print("hello world")
