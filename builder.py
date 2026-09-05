@@ -1,22 +1,17 @@
 import uuid
 import secrets
 
-
 def generate_short_id() -> str:
-    """Генерирует случайный 8-байтовый (16 hex-символов) Short ID."""
     return secrets.token_hex(8)
 
-
 def get_vless_reality_template(
-        tag: str = "vless-inbound-443",
-        port: int = 443,
-        server_name: str = "example.com",
-        private_key: str = "",
-        short_id: str = None,
-        xver: int = 1
+    tag: str = "vless-inbound-443",
+    port: int = 443,
+    server_name: str = "example.com",
+    private_key: str = "",
+    short_id: str = None,
+    xver: int = 1
 ) -> dict:
-    """Генерирует готовый инбаунд VLESS Reality с поддержкой BBR и PROXY protocol (xver)."""
-
     if not short_id:
         short_id = "8d6da97c874a82e1"
 
@@ -49,11 +44,17 @@ def get_vless_reality_template(
         }
     }
 
-
-def get_hysteria2_template(tag: str = "hy2-inbound-443", port: int = 443, password: str = None) -> dict:
-    """Генерирует инбаунд Hysteria 2 для 443/UDP с сертификатами из /dev/shm."""
+def get_hysteria2_template(
+    tag: str = "hy2-inbound-443",
+    port: int = 443,
+    password: str = None,
+    domain: str = "example.com"
+) -> dict:
     if not password:
         password = str(uuid.uuid4())
+
+    fullchain_path = f"/etc/letsencrypt/live/{domain}/fullchain.pem"
+    privkey_path = f"/etc/letsencrypt/live/{domain}/privkey.pem"
 
     return {
         "tag": tag,
@@ -73,8 +74,8 @@ def get_hysteria2_template(tag: str = "hy2-inbound-443", port: int = 443, passwo
             "tlsSettings": {
                 "certificates": [
                     {
-                        "certificateFile": "/dev/shm/hy2_certs/fullchain.pem",
-                        "keyFile": "/dev/shm/hy2_certs/privkey.pem"
+                        "certificateFile": fullchain_path,
+                        "keyFile": privkey_path
                     }
                 ],
                 "alpn": [
